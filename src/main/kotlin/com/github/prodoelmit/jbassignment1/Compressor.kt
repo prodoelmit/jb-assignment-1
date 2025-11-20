@@ -63,5 +63,6 @@ object Compressor {
             }
         }
         reportProgress(1f)
+
     }
 }
