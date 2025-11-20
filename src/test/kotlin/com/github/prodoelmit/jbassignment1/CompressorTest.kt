@@ -119,12 +119,8 @@ class CompressorTest : BasePlatformTestCase() {
         try {
             Files.writeString(inputPath, content)
 
-            val virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(outputPath.toAbsolutePath().toString())
 
-            assertTrue(virtualFile != null)
-            virtualFile!!
-
-            val result = Compressor.compress(virtualFile, outputPath) { }
+            val result = Compressor.compressFile(inputPath, outputPath) { }
 
             assertEquals("Should return output path", outputPath, result)
             assertTrue("Output file should exist", Files.exists(outputPath))

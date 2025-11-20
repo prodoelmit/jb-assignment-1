@@ -2,6 +2,7 @@ package com.github.prodoelmit.jbassignment1
 
 import com.github.luben.zstd.ZstdOutputStream
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.io.isFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -10,12 +11,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.coroutines.coroutineContext
 import kotlin.io.path.Path
+import kotlin.io.path.isReadable
 
 object Compressor {
     private const val BUFFER_SIZE = 65536 // 64KB chunks
 
     suspend fun compress(input: VirtualFile, output: Path, reportProgress: (Float) -> Unit) {
-        if (input.isInLocalFileSystem) {
+        if (input.isInLocalFileSystem && Path(input.path).isReadable()) {
             compressFile(Path(input.path), output, reportProgress)
         } else {
             // Fall back to VirtualFile stream for non-local files
@@ -28,7 +30,7 @@ object Compressor {
         }
     }
 
-    private suspend fun compressFile(input: Path, output: Path, reportProgress: (Float) -> Unit): Path {
+    suspend fun compressFile(input: Path, output: Path, reportProgress: (Float) -> Unit): Path {
         val totalSize = Files.size(input)
         withContext(Dispatchers.IO) {
             Files.newInputStream(input).use { inputStream ->
