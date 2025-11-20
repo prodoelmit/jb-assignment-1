@@ -46,7 +46,10 @@ to "very optional"
 3. Balloon with "Show location" link that would open export directory in explorer/finder .
 4. Settings dialog (compression level + output path), like in "Export to HTML"
 5. UI tests if previous points are implemented
-6. Telemetry/diagnostics. 
+6. Telemetry/diagnostics.
+
+
+Q: Which of the items above should be done, and which can be ignored? 
 
 # Testing on Windows 
 
