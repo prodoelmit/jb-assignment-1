@@ -53,3 +53,8 @@ to "very optional"
 I'm leaving it until later stages, because I simply don't have windows machine :) I'll see if I can wrap it in autotests
 to run in CI instead. 
 
+# Plugin verification bug 
+
+See https://platform.jetbrains.com/t/could-not-find-idea253-22441-33-during-plugin-verification/2842 
+
+For now I've just limited to "Latest version of IDEA Community", as stated in the task.
