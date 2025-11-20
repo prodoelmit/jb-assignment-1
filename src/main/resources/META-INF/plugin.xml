@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.prodoelmit.jbassignment1</id>
-    <name>jb-assignment-1</name>
+    <name>ProdoElmit's compression</name>
     <vendor>prodoelmit</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -9,7 +9,25 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.prodoelmit.jbassignment1.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="com.github.prodoelmit.jbassignment1.startup.MyProjectActivity" />
+        <notificationGroup id="notifications.debug"
+                           displayType="BALLOON"
+                           key="notifications.debug"/>
     </extensions>
+
+    <actions>
+        <action id="compress-current-file"
+                class="com.github.prodoelmit.jbassignment1.CompressAction"
+                description="Compresses current file using zstd lib"
+                text="Compress Current File"
+        >
+            <add-to-group group-id="EditorPopupMenu"
+                          relative-to-action="Generate"
+                          anchor="after"
+                          />
+        </action>
+
+
+
+    </actions>
 </idea-plugin>
