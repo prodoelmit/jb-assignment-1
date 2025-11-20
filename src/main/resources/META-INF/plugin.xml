@@ -21,8 +21,8 @@
                 description="Compresses current file using zstd lib"
                 text="Compress Current File"
         >
-            <add-to-group group-id="EditorPopupMenu"
-                          relative-to-action="Generate"
+            <add-to-group group-id="FileExportGroup"
+                          relative-to-action="ExportToHTML"
                           anchor="after"
                           />
         </action>
