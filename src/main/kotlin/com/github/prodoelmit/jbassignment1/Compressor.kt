@@ -9,20 +9,26 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.coroutines.coroutineContext
+import kotlin.io.path.Path
 
 object Compressor {
     private const val BUFFER_SIZE = 65536 // 64KB chunks
 
     suspend fun compress(input: VirtualFile, output: Path, reportProgress: (Float) -> Unit) {
-        val totalSize = input.length
-        withContext(Dispatchers.IO) {
-            input.inputStream.use { inputStream ->
-                compressStream(inputStream, output, totalSize, reportProgress)
+        if (input.isInLocalFileSystem) {
+            compressFile(Path(input.path), output, reportProgress)
+        } else {
+            // Fall back to VirtualFile stream for non-local files
+            val totalSize = input.length
+            withContext(Dispatchers.IO) {
+                input.inputStream.use { inputStream ->
+                    compressStream(inputStream, output, totalSize, reportProgress)
+                }
             }
         }
     }
 
-    suspend fun compress(input: Path, output: Path, reportProgress: (Float) -> Unit): Path {
+    private suspend fun compressFile(input: Path, output: Path, reportProgress: (Float) -> Unit): Path {
         val totalSize = Files.size(input)
         withContext(Dispatchers.IO) {
             Files.newInputStream(input).use { inputStream ->

@@ -9,7 +9,6 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="com.github.prodoelmit.jbassignment1.startup.MyProjectActivity" />
         <notificationGroup id="notifications.debug"
                            displayType="BALLOON"
                            key="notifications.debug"/>

@@ -12,6 +12,8 @@ Of all of them only 1 and 4 seem feasible.
 For now I'm sticking to 1 (`zstd-jni`), assuming that the size increase is too small to 
 cause any problems. 
 
+Q: Is it ok to stick with `zstd-jni` and not care about ~2mb in plugin size? 
+
 # UX 
 
 Currently, I've moved it to File -> Export -> "Compress to zstd", which I assume to be the most logical place to put 
@@ -19,14 +21,17 @@ this new functionality
 
 # VirtualFile compression
 
-Not all VirtualFiles have underlying local files available, so I'm using VirtualFile's content to compress in all cases. 
+There are two situations: when VirtualFile has underlying file on disk and when it doesn't 
 
-In case of very big files compressing local files might actually be faster, but there might be a delay between 
-a change in IDE and corresponding write on disk. Also, I doubt that opening a file large enough to feel the difference
-would be even adequate 
+In my measurements (not very thorough) compressing real file was ~20% faster than compressing VirtualFile inputStream 
 
-With all above said, it would be still true to say that for production-grade plugin we would need to measure how big is 
-that difference, and maybe optimize it a bit further, while caring about proper flushing. 
+So I assume that it's not premature optimization to work with real files when we have them. Even though 
+it adds a complexity of flushing the writes to the disk to avoid any concurrency issues. 
+
+(There might be more problems when we generate writes while it's still compressing, but given that huge files 
+are opened in read-only mode, I assume that this is highly unlikely) 
+
+Q: Can this highly-unlikely case be ommitted for this task, or should I care about 100% perfect UX with all edge cases? 
 
 # Functionality 
 
@@ -36,12 +41,12 @@ terms of code quality, tests coverage etc)
 I have the following things in mind that could/should be implemented. Sorted by my opinion on priority, from 1-musthave
 to "very optional"
 
-1. Basic tests
+1. Basic tests (implemented some of them, might add more)
 2. File picker to choose where to put resulting file
 3. Balloon with "Show location" link that would open export directory in explorer/finder .
 4. Settings dialog (compression level + output path), like in "Export to HTML"
-5. Telemetry/diagnostics. 
-
+5. UI tests if previous points are implemented
+6. Telemetry/diagnostics. 
 
 # Testing on Windows 
 

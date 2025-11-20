@@ -6,11 +6,14 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.application.writeAction
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.platform.util.progress.reportRawProgress
 import kotlinx.coroutines.launch
 import kotlin.io.path.Path
+import kotlin.system.measureTimeMillis
 
 @Suppress("UnstableApiUsage")
 class CompressAction : AnAction() {
@@ -25,12 +28,22 @@ class CompressAction : AnAction() {
                 project = project,
                 title = "Compressing $filename",
             ) {
-                reportRawProgress { reporter ->
-                    Compressor.compress(virtualFile, outputPath) { progress ->
-                        reporter.fraction(progress.toDouble())
+                // Flush unsaved changes before compression
+                if (virtualFile.isInLocalFileSystem) {
+                    writeAction {
+                        FileDocumentManager.getInstance().saveAllDocuments()
                     }
                 }
-                debugBalloon("Compressed $filename")
+
+                val time = measureTimeMillis {
+                    reportRawProgress { reporter ->
+                        Compressor.compress(virtualFile, outputPath) { progress ->
+                            reporter.fraction(progress.toDouble())
+                        }
+                    }
+                }
+
+                debugBalloon("Compressed $filename in ${time}ms")
             }
         }
     }
