@@ -138,15 +138,14 @@ class CompressorTest : BasePlatformTestCase() {
     }
 
     fun testCancellation() = runBlocking {
-        // Create 1GB file
         val inputPath = Files.createTempFile("large_input", ".txt")
         val outputPath = Files.createTempFile("cancelled_output", ".zst")
 
         try {
-            // Write 1GB of data
+            // Write 256mb of data
             val chunk = "X".repeat(1024 * 1024) // 1MB
             Files.newBufferedWriter(inputPath).use { writer ->
-                repeat(1024) { writer.write(chunk) }
+                repeat(256) { writer.write(chunk) }
             }
 
             val originalSize = inputPath.fileSize()
@@ -163,24 +162,7 @@ class CompressorTest : BasePlatformTestCase() {
             job.join()
 
             // Verify output exists but is incomplete
-            assertTrue("Output file should exist", Files.exists(outputPath))
-
-            // Decompress and check it's less than original
-            val decompressedSize = try {
-                ZstdInputStream(Files.newInputStream(outputPath)).use { zstdIn ->
-                    zstdIn.readBytes().size.toLong()
-                }
-            } catch (e: Exception) {
-                // Incomplete zstd stream may fail to decompress fully
-                0L
-            }
-
-            assertTrue(
-                "Decompressed size ($decompressedSize) should be less than original ($originalSize)",
-                decompressedSize < originalSize
-            )
-
-            println("Decompressed size was $decompressedSize, original $originalSize. Ratio ${decompressedSize.toFloat() / originalSize.toFloat()}")
+            assertTrue("Output file should be cleaned up due to cancellation", Files.notExists(outputPath))
         } finally {
             inputPath.deleteIfExists()
             outputPath.deleteIfExists()

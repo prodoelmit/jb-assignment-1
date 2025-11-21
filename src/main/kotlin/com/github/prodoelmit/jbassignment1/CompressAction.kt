@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.writeAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.currentThreadCoroutineScope
+import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.platform.util.progress.reportRawProgress
 import kotlinx.coroutines.launch
@@ -29,7 +30,8 @@ class CompressAction : AnAction() {
                 title = "Compressing $filename",
             ) {
                 // Flush unsaved changes before compression
-                if (virtualFile.isInLocalFileSystem) {
+                // if there's real file behind this virtual one
+                if (virtualFile.toNioPathOrNull() != null) {
                     writeAction {
                         FileDocumentManager.getInstance().saveAllDocuments()
                     }
