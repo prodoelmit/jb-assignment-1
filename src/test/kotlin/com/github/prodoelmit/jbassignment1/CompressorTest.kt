@@ -1,12 +1,13 @@
 package com.github.prodoelmit.jbassignment1
 
 import com.github.luben.zstd.ZstdInputStream
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.fileSize
 
 class CompressorTest : BasePlatformTestCase() {
 
@@ -130,6 +131,56 @@ class CompressorTest : BasePlatformTestCase() {
                 zstdIn.readBytes().decodeToString()
             }
             assertEquals("Decompressed content should match original", content, decompressed)
+        } finally {
+            inputPath.deleteIfExists()
+            outputPath.deleteIfExists()
+        }
+    }
+
+    fun testCancellation() = runBlocking {
+        // Create 1GB file
+        val inputPath = Files.createTempFile("large_input", ".txt")
+        val outputPath = Files.createTempFile("cancelled_output", ".zst")
+
+        try {
+            // Write 1GB of data
+            val chunk = "X".repeat(1024 * 1024) // 1MB
+            Files.newBufferedWriter(inputPath).use { writer ->
+                repeat(1024) { writer.write(chunk) }
+            }
+
+            val originalSize = inputPath.fileSize()
+
+            // Compress and cancel at 20%
+            var job: Job? = null
+            job = launch {
+                Compressor.compressFile(inputPath, outputPath) { progress ->
+                    if (progress >= 0.2f) {
+                        job?.cancel()
+                    }
+                }
+            }
+            job.join()
+
+            // Verify output exists but is incomplete
+            assertTrue("Output file should exist", Files.exists(outputPath))
+
+            // Decompress and check it's less than original
+            val decompressedSize = try {
+                ZstdInputStream(Files.newInputStream(outputPath)).use { zstdIn ->
+                    zstdIn.readBytes().size.toLong()
+                }
+            } catch (e: Exception) {
+                // Incomplete zstd stream may fail to decompress fully
+                0L
+            }
+
+            assertTrue(
+                "Decompressed size ($decompressedSize) should be less than original ($originalSize)",
+                decompressedSize < originalSize
+            )
+
+            println("Decompressed size was $decompressedSize, original $originalSize. Ratio ${decompressedSize.toFloat() / originalSize.toFloat()}")
         } finally {
             inputPath.deleteIfExists()
             outputPath.deleteIfExists()
