@@ -31,4 +31,8 @@ project {
 
 object Qwe : BuildType({
     name = "qwe"
+
+    vcs {
+        root(DslContext.settingsRoot)
+    }
 })
