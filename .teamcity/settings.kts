@@ -1,4 +1,6 @@
+import buildTypes.BuildZStdLinux
 import jetbrains.buildServer.configs.kotlin.*
+import vcsRoots.ZStd
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -25,14 +27,6 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 version = "2025.07"
 
 project {
-
-    buildType(Qwe)
+    vcsRoot(ZStd)
+    buildType(BuildZStdLinux)
 }
-
-object Qwe : BuildType({
-    name = "qwe"
-
-    vcs {
-        root(DslContext.settingsRoot)
-    }
-})
