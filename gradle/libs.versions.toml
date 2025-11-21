@@ -2,7 +2,7 @@
 # libraries
 junit = "4.13.2"
 opentest4j = "1.3.0"
-zstd = "1.5.7-4" # Not latest, so should be more tested in prod
+zstd = "1.5.7-6" # Not latest, so should be more tested in prod
 
 # plugins
 changelog = "2.4.0"
