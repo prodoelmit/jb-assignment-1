@@ -2,6 +2,7 @@ package com.github.prodoelmit.jbassignment1
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.toNioPathOrNull
+import com.intellij.util.io.awaitExit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -41,6 +42,29 @@ object Compressor {
         return outputPath
     }
 
+    suspend fun decompressFile(input: Path): ByteArray {
+        return withContext(Dispatchers.IO) {
+            val zstdBinary = NativeBinaryLoader.getZstdBinary()
+
+            val process = ProcessBuilder(
+                zstdBinary.absolutePath,
+                "-d", "-c", input.toString()
+            )
+                .redirectErrorStream(false)
+                .start()
+
+            val output = process.inputStream.readBytes()
+            val exitCode = process.awaitExit()
+
+            if (exitCode != 0) {
+                val errorOutput = process.errorStream.bufferedReader().readText()
+                throw RuntimeException("zstd decompression failed with exit code $exitCode: $errorOutput")
+            }
+
+            output
+        }
+    }
+
     private suspend fun compressStream(
         inputStream: InputStream,
         outputPath: Path,
@@ -53,6 +77,7 @@ object Compressor {
         val process = ProcessBuilder(
             zstdBinary.absolutePath,
             "-$level",
+            "-f",  // force overwrite if file exists
             "-o", outputPath.toString()
             // reads from stdin by default when no input file specified
         )
@@ -75,7 +100,7 @@ object Compressor {
                 }
             }
 
-            val exitCode = process.waitFor()
+            val exitCode = process.awaitExit()
             if (exitCode != 0) {
                 val errorOutput = process.inputStream.bufferedReader().readText()
                 throw RuntimeException("zstd compression failed with exit code $exitCode: $errorOutput")

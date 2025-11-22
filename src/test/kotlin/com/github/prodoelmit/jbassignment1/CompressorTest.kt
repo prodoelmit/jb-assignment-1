@@ -1,6 +1,5 @@
 package com.github.prodoelmit.jbassignment1
 
-import com.github.luben.zstd.ZstdInputStream
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -75,9 +74,7 @@ class CompressorTest : BasePlatformTestCase() {
             Compressor.compress(inputFile.virtualFile, outputPath) { }
 
             // Decompress and verify content
-            val decompressed = ZstdInputStream(Files.newInputStream(outputPath)).use { zstdIn ->
-                zstdIn.readBytes().decodeToString()
-            }
+            val decompressed = Compressor.decompressFile(outputPath).decodeToString()
 
             assertEquals("Decompressed content should match original", content, decompressed)
         } finally {
@@ -103,9 +100,7 @@ class CompressorTest : BasePlatformTestCase() {
             )
 
             // Verify decompression
-            val decompressed = ZstdInputStream(Files.newInputStream(outputPath)).use { zstdIn ->
-                zstdIn.readBytes().decodeToString()
-            }
+            val decompressed = Compressor.decompressFile(outputPath).decodeToString()
             assertEquals("Decompressed content should match original", content, decompressed)
         } finally {
             outputPath.deleteIfExists()
@@ -127,9 +122,7 @@ class CompressorTest : BasePlatformTestCase() {
             assertTrue("Output file should exist", Files.exists(outputPath))
 
             // Verify decompression
-            val decompressed = ZstdInputStream(Files.newInputStream(outputPath)).use { zstdIn ->
-                zstdIn.readBytes().decodeToString()
-            }
+            val decompressed = Compressor.decompressFile(outputPath).decodeToString()
             assertEquals("Decompressed content should match original", content, decompressed)
         } finally {
             inputPath.deleteIfExists()
