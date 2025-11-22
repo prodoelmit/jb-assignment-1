@@ -22,7 +22,7 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         $outputDir/**/*
     """.trimIndent()
 
-    addHiddenParam("env.GRADLE_USER_HOME", "%system.agent.work.dir%/gradle_cache")
+    addHiddenParam("env.GRADLE_USER_HOME", "%system.teamcity.build.tempDir%/gradle_cache")
 
     steps {
         gradle {
