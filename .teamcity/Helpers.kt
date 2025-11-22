@@ -79,3 +79,4 @@ fun Requirements.mac() {
 }
 
 val pluginFilename = "plugin.zip"
+val signedPluginFilename = "signedPlugin.zip"

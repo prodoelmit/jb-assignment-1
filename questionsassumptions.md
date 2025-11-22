@@ -46,3 +46,18 @@ Update: decided to only support linux for now
 See https://platform.jetbrains.com/t/could-not-find-idea253-22441-33-during-plugin-verification/2842 
 
 For now I've just limited to "Latest version of IDEA Community", as stated in the task.
+
+# Using right version of zstd
+
+There are several ways to implement it, e.g.: 
+* zstd as submodule in this repo
+* separate pipelines with some version references in-between
+* branching convention between two repos 
+
+For ease of implementation here I've chosen the latter one. `zstd` is forked to my account, which allows me to 
+create branches with same name as in my plugin's repo. When building from branches teamcity by default uses the same 
+name where possible, so just by choosing plugin's branch we'll get corresponding zstd's branch
+(it will fallback to using default branch if the branch with same name doesn't exist)
+
+note: there's a quirk - when running build for default branch, teamcity passes `<default>` downstream, not the actual 
+name of branch. That might shoot some kneecaps if used without caution. 
