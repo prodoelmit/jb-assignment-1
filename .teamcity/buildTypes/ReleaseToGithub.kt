@@ -1,6 +1,9 @@
 package buildTypes
 
+import addHiddenParam
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.FailureAction
+import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
@@ -14,6 +17,9 @@ class ReleaseToGithub(composite: Composite): BuildType( {
 
     val inputDir = "input"
     val dockerTag = "alpine_with_github_cli"
+
+    // hide "Deploy" button, so we're always explicitly deploying specific build
+    addHiddenParam("teamcity.buildType.environmentBuildType.promoteOnly",  "true")
 
     steps {
         dockerCommand {
@@ -40,6 +46,10 @@ class ReleaseToGithub(composite: Composite): BuildType( {
 
     dependencies {
         dependency(composite) {
+            snapshot {
+                onDependencyFailure = FailureAction.FAIL_TO_START
+                reuseBuilds = ReuseBuilds.SUCCESSFUL
+            }
             artifacts {
                 artifactRules = """
                     +:$signedPluginFilename
