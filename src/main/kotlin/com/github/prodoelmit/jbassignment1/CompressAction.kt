@@ -10,8 +10,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.writeAction
-import com.intellij.openapi.fileChooser.FileChooserFactory
-import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.vfs.VirtualFile
@@ -28,13 +26,11 @@ class CompressAction : AnAction() {
         val virtualFile = p0.dataContext.getData(PlatformDataKeys.VIRTUAL_FILE) ?: return
         val filename = virtualFile.name
 
-        // Show file save dialog
-        val descriptor = FileSaverDescriptor("Save Compressed File", "Choose location for compressed file", "zst")
-        val dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project)
-
-        // when virtualFile.parent is null dialog will use some default directory
-        val wrapper = dialog.save(virtualFile.parent, "$filename.zst") ?: return
-        val outputPath = wrapper.file.toPath()
+        // Show compression dialog
+        val dialog = CompressionDialog(project, virtualFile)
+        if (!dialog.showAndGet()) return
+        val outputPath = dialog.getOutputPath()
+        val compressionLevel = dialog.getCompressionLevel()
 
         currentThreadCoroutineScope().launch {
             withBackgroundProgress(
@@ -51,7 +47,7 @@ class CompressAction : AnAction() {
 
                 val time = measureTimeMillis {
                     reportRawProgress { reporter ->
-                        Compressor.compress(virtualFile, outputPath) { progress ->
+                        Compressor.compress(virtualFile, outputPath, compressionLevel) { progress ->
                             reporter.fraction(progress.toDouble())
                         }
                     }

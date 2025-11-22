@@ -16,26 +16,26 @@ import kotlin.io.path.deleteIfExists
 object Compressor {
     private const val BUFFER_SIZE = 65536 // 64KB chunks
 
-    suspend fun compress(input: VirtualFile, outputPath: Path, reportProgress: (Float) -> Unit) {
+    suspend fun compress(input: VirtualFile, outputPath: Path, level: Int = 19, reportProgress: (Float) -> Unit) {
         val inputPath = input.toNioPathOrNull()
         if (inputPath != null) {
-            compressFile(Path(input.path), outputPath, reportProgress)
+            compressFile(Path(input.path), outputPath, level, reportProgress)
         } else {
             // Fall back to VirtualFile stream for non-local files
             val totalSize = input.length
             withContext(Dispatchers.IO) {
                 input.inputStream.use { inputStream ->
-                    compressStream(inputStream, outputPath, totalSize, reportProgress)
+                    compressStream(inputStream, outputPath, totalSize, level, reportProgress)
                 }
             }
         }
     }
 
-    suspend fun compressFile(input: Path, outputPath: Path, reportProgress: (Float) -> Unit): Path {
+    suspend fun compressFile(input: Path, outputPath: Path, level: Int = 19, reportProgress: (Float) -> Unit): Path {
         val totalSize = Files.size(input)
         withContext(Dispatchers.IO) {
             Files.newInputStream(input).use { inputStream ->
-                compressStream(inputStream, outputPath, totalSize, reportProgress)
+                compressStream(inputStream, outputPath, totalSize, level, reportProgress)
             }
         }
         return outputPath
@@ -45,13 +45,14 @@ object Compressor {
         inputStream: InputStream,
         outputPath: Path,
         totalSize: Long,
+        level: Int,
         reportProgress: (Float) -> Unit
     ) {
         val zstdBinary = NativeBinaryLoader.getZstdBinary()
 
         val process = ProcessBuilder(
             zstdBinary.absolutePath,
-            "-19",  // compression level
+            "-$level",
             "-o", outputPath.toString()
             // reads from stdin by default when no input file specified
         )
