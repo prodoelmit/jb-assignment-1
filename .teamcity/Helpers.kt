@@ -1,4 +1,5 @@
-import jetbrains.buildServer.configs.kotlin.Requirements
+import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.ui.add
 
 open class Arch(
     val humanReadableName: String,
@@ -80,3 +81,16 @@ fun Requirements.mac() {
 
 val pluginFilename = "plugin.zip"
 val signedPluginFilename = "signedPlugin.zip"
+
+fun BuildType.addParam(name: String, block: ParametrizedWithType.(String) -> Unit = {}): ParameterRef {
+    params.add {
+        block(name)
+    }
+    return ParameterRef(name)
+}
+
+fun BuildType.addHiddenParam(name: String, value: String): ParameterRef = addParam(name) {
+    text(
+        it, value, display = ParameterDisplay.HIDDEN
+    )
+}

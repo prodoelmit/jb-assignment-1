@@ -1,7 +1,4 @@
-import buildTypes.BuildPlugin
-import buildTypes.BuildZStdLinux
-import buildTypes.BuildZStdMac
-import buildTypes.DepsAndArchsList
+import buildTypes.*
 import jetbrains.buildServer.configs.kotlin.*
 import vcsRoots.ZStd
 
@@ -47,6 +44,10 @@ project {
     }
 
     val buildPlugin = BuildPlugin(depsAndArchs).also {
+        buildType(it)
+    }
+
+    val signPlugin = SignPlugin(buildPlugin).also {
         buildType(it)
     }
 
