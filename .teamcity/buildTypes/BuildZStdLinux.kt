@@ -27,10 +27,12 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
     """.trimIndent()
 
     vcs {
-        root(DslContext.settingsRoot, """
+        root(
+            DslContext.settingsRoot, """
             +:.
             -:.teamcity
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     steps {
@@ -58,12 +60,15 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
 
             script {
                 name = "Build ${arch.humanReadableName}"
+
+
+                val dirForArtifact = "$outDir/${arch.os}/${arch.architecture}"
                 scriptContent = """
-                make clean
-                ${arch.compilerEnvString} make
-                
-                mkdir -p out
-                cp programs/zstd out/${arch.os}/${arch.architecture}/${arch.filename}
+                    make clean
+                    ${arch.compilerEnvString} make
+                    
+                    mkdir -p "$dirForArtifact"
+                    cp programs/zstd "$dirForArtifact/${arch.filename}"
             """.trimIndent()
                 dockerImage = dockerTag
             }
