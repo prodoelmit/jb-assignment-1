@@ -2,6 +2,7 @@ package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildSteps.DockerCommandStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.ui.*
@@ -53,6 +54,18 @@ changeBuildType(RelativeId("BuildZStdLinux")) {
                 namesAndTags = "ubuntu_with_cross_compilers:local"
                 commandArgs = ""
             }
+        }
+        update<ScriptBuildStep>(1) {
+            clearConditions()
+            scriptContent = """
+                set -x 
+                
+                make
+                
+                mkdir -p out
+                cp programs/zstd out/zstd_amd64
+            """.trimIndent()
+            param("teamcity.kubernetes.executor.pull.policy", "")
         }
     }
 }
