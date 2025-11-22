@@ -70,5 +70,16 @@ changeBuildType(RelativeId("BuildZStdLinux")) {
             """.trimIndent()
             param("teamcity.kubernetes.executor.pull.policy", "")
         }
+        update<ScriptBuildStep>(2) {
+            clearConditions()
+            scriptContent = """
+                make clean
+                CC="/opt/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc" make zstd LDFLAGS="-static"
+                
+                mkdir -p "out/linux/aarch64"
+                cp programs/zstd "out/linux/aarch64/zstd"
+            """.trimIndent()
+            param("teamcity.kubernetes.executor.pull.policy", "")
+        }
     }
 }
