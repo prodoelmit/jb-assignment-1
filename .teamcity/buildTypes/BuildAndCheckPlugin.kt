@@ -1,6 +1,7 @@
 package buildTypes
 
 import Arch
+import addHiddenParam
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
@@ -20,6 +21,8 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
     artifactRules = """
         $outputDir/**/*
     """.trimIndent()
+
+    addHiddenParam("env.GRADLE_USER_HOME", "%system.agent.work.dir%/gradle_cache")
 
     steps {
         gradle {
