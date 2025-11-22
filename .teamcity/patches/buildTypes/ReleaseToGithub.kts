@@ -1,6 +1,9 @@
 package patches.buildTypes
 
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.DockerCommandStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.ui.*
 
 /*
@@ -9,6 +12,45 @@ To apply the patch, change the buildType with id = 'ReleaseToGithub'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("ReleaseToGithub")) {
+    expectSteps {
+        dockerCommand {
+            name = "Prepare docker with github-cli"
+            commandType = build {
+                source = content {
+                    content = """
+                        FROM alpine:latest
+                        
+                        apk add github-cli
+                    """.trimIndent()
+                }
+                namesAndTags = "alpine_with_github_cli"
+            }
+        }
+        script {
+            name = "Dummy"
+            scriptContent = "gh version"
+            dockerImage = "alpine_with_github_cli"
+        }
+    }
+    steps {
+        update<DockerCommandStep>(0) {
+            clearConditions()
+            commandType = build {
+                source = content {
+                    content = """
+                        FROM alpine:latest
+                        
+                        RUN apk add github-cli
+                    """.trimIndent()
+                }
+                contextDir = ""
+                platform = DockerCommandStep.ImagePlatform.Any
+                namesAndTags = "alpine_with_github_cli"
+                commandArgs = ""
+            }
+        }
+    }
+
     dependencies {
         expect(RelativeId("BuildAndSignPlugin")) {
             snapshot {
