@@ -33,22 +33,30 @@ project {
     vcsRoot(ZStd)
 
 
+    // ------ Prepare build types ------------
     val zstdLinux = BuildZStdLinux(linuxArchs).also {
-        buildType(it)
         depsAndArchs.add(Pair(it, linuxArchs))
     }
-
     val zstdMac = BuildZStdMac(macArchs).also {
-        buildType(it)
         depsAndArchs.add(Pair(it, macArchs))
     }
+    val buildPlugin = BuildPlugin(depsAndArchs)
+    val signPlugin = SignPlugin(buildPlugin)
+    val composite = Composite(buildPlugin, signPlugin)
+    val releaseToGithub = ReleaseToGithub(composite)
 
-    val buildPlugin = BuildPlugin(depsAndArchs).also {
-        buildType(it)
-    }
 
-    val signPlugin = SignPlugin(buildPlugin).also {
-        buildType(it)
+    // -----------------  Register build types -----------
+
+    buildType(composite)
+    buildType(releaseToGithub)
+
+    subProject {
+        name = "Substeps"
+        buildType(zstdLinux)
+        buildType(zstdMac)
+        buildType(buildPlugin)
+        buildType(signPlugin)
     }
 
 }
