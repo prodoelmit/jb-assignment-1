@@ -20,6 +20,11 @@ changeBuildType(RelativeId("ReleaseToGithub")) {
             }
         }
         update(RelativeId("BuildAndSignPlugin")) {
+            snapshot {
+                reuseBuilds = ReuseBuilds.NO
+                synchronizeRevisions = false
+            }
+
             artifacts {
                 buildRule = lastSuccessful("+:*")
                 artifactRules = "+:signedPlugin.zip"
