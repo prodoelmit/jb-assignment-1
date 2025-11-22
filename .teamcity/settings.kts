@@ -53,6 +53,7 @@ project {
 
     subProject {
         name = "Substeps"
+        id("Substeps")
         buildType(zstdLinux)
         buildType(zstdMac)
         buildType(buildPlugin)
