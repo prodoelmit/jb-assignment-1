@@ -3,6 +3,7 @@ package buildTypes
 import LinuxArch
 import appendBashMultiline
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
@@ -24,6 +25,13 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
     artifactRules = """
         $outDir/**/*
     """.trimIndent()
+
+    vcs {
+        root(DslContext.settingsRoot, """
+            +:.
+            -:.teamcity
+        """.trimIndent())
+    }
 
     steps {
         dockerCommand {
