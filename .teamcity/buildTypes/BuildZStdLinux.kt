@@ -17,7 +17,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
         root(ZStd, "+:.")
     }
 
-    val dockerTag = "ubuntu_with_cross_compilers:local"
+    val dockerTag = "alpine_with_cross_compilers:local"
 
 
     val outDir = "out"
@@ -33,12 +33,11 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                 val deps = archs.flatMap { it.dependencies }
                 source = content {
                     this.content = buildString {
-                        appendLine("FROM ubuntu:24.04")
+                        appendLine("FROM alpine:latest")
                         appendLine()
 
                         appendBashMultiline(
-                            "RUN apt update &&",
-                            "apt install -y --no-install-recommends",
+                            "RUN apk add --no-cache",
                             *deps.toTypedArray(),
                         )
                     }

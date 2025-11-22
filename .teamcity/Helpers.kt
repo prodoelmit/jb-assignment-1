@@ -41,12 +41,13 @@ class MacArch(
 )
 
 val linuxArchs = listOf(
-    LinuxArch("x86_64", "x86_64", null, listOf("build-essential")),
+    LinuxArch("x86_64", "x86_64", null, listOf("build-base", "make")),
     LinuxArch(
-        "aarch64", "aarch64", "aarch64-linux-gnu-gcc",
+        "aarch64", "aarch64", "aarch64-linux-musl-gcc",
         listOf(
-            "gcc-aarch64-linux-gnu",
-            "libc6-dev-arm64-cross",
+            "build-base",
+            "make",
+            "aarch64-linux-musl-gcc",
         )
     ),
 )
