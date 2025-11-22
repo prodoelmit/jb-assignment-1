@@ -15,16 +15,18 @@ changeProject(DslContext.projectId) {
             feature {
                 type = "CloudProfile"
                 id = "google-1"
-                param("profileId", "google-1")
                 param("profileServerUrl", "http://10.198.0.3:8111")
+                param("system.cloud.profile_id", "google-1")
                 param("agent_pool_id", "-2")
-                param("name", "Linux")
                 param("credentialsType", "key")
                 param("description", "")
                 param("cloud-code", "google")
                 param("terminate-after-build", "true")
-                param("terminate-idle-time", "30")
                 param("enabled", "true")
+                param("agentPushPreset", "1763818061373")
+                param("profileId", "google-1")
+                param("name", "Linux")
+                param("terminate-idle-time", "30")
                 param("secure:accessKey", "credentialsJSON:bfa0280d-d28e-4456-950a-66d44a512c38")
             }
         }
