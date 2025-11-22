@@ -5,6 +5,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
+import jetbrains.buildServer.configs.kotlin.buildFeatures.xmlReport
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import linux
 
@@ -17,6 +18,14 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         gradle {
             name = "Build plugin"
             tasks = "buildPlugin"
+        }
+        gradle {
+            name = "Run tests"
+            tasks = "check"
+        }
+        gradle {
+            name = "Run plugin verifier"
+            tasks = "verifyPlugin"
         }
     }
 
@@ -51,7 +60,6 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         swabra {
             forceCleanCheckout = true
         }
-
     }
 
     requirements {
