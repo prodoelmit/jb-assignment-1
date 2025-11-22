@@ -13,6 +13,14 @@ To apply the patch, change the buildType with id = 'BuildZStdLinux'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("BuildZStdLinux")) {
+    check(artifactRules == "") {
+        "Unexpected option value: artifactRules = $artifactRules"
+    }
+    artifactRules = """
+        out/zstd_amd64
+        out/zstd_aarch64
+    """.trimIndent()
+
     expectSteps {
         dockerCommand {
             name = "Prepare docker with cross-compilers"
