@@ -27,6 +27,12 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 version = "2025.07"
 
 project {
+
+    val archs = listOf(
+        LinuxArch("x86_64", "zstd_x86_64", null, listOf("build-essential")),
+        LinuxArch("aarch64", "zstd_aarch64", null, listOf("gcc-aarch64-linux-gnu")),
+    )
+
     vcsRoot(ZStd)
-    buildType(BuildZStdLinux)
+    buildType(BuildZStdLinux(archs))
 }

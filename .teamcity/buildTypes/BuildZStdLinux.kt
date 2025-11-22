@@ -1,11 +1,12 @@
 package buildTypes
 
+import LinuxArch
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import vcsRoots.ZStd
 
-object BuildZStdLinux : BuildType({
+class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
     name = "Build ZStd Linux"
     id("BuildZStdLinux")
 
@@ -13,45 +14,51 @@ object BuildZStdLinux : BuildType({
         root(ZStd, "+:.")
     }
 
-    val dockerTag =  "ubuntu_with_cross_compilers:local"
+    val dockerTag = "ubuntu_with_cross_compilers:local"
+
+
+    val outDir = "out"
+
+    artifactRules = archs.joinToString {  arch ->
+        "$outDir/${arch.binaryName} => ${arch.binaryName}"
+    }
 
     steps {
         dockerCommand {
             name = "Prepare docker with cross-compilers"
             this.commandType = build {
-                val deps = listOf(
-                    "build-essential",
-                    "gcc-aarch64-linux-gnu",
-                    "g++-aarch64-linux-gnu",
-                )
+                val deps = archs.flatMap { arch -> arch.dependencies }
                 this.source = content {
                     this.content = """
-                        FROM ubuntu:22
+                        FROM ubuntu:24.04
                         
-                        apt install -y --no-install-recommends \\${deps.joinToString("\\n")}
+                        apt install -y --no-install-recommends \
+                            ${deps.joinToString("\\\n")}
                     """.trimIndent()
                 }
 
                 this.namesAndTags = dockerTag
             }
         }
-        script {
-            name = "Build x86_64"
-            scriptContent = """
-                make
+        archs.forEach { arch ->
+
+            script {
+                name = "Build ${arch.humanReadable}"
+                scriptContent = """
+                make clean
+                ${arch.compilerEnvString} make
+                
+                mkdir -p out
+                cp programs/zstd out/${arch.binaryName}"
             """.trimIndent()
-            dockerImage = dockerTag
-        }
-        script {
-            name = "Build aarch64"
-            scriptContent = """
-                CC=aarch64-linux-gnu-gcc make
-            """.trimIndent()
-            dockerImage = dockerTag
+                dockerImage = dockerTag
+            }
+
         }
     }
 
     requirements {
         contains("teamcity.agent.jvm.os.name", "Linux")
     }
-})
+}) {
+}
