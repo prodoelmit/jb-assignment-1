@@ -1,4 +1,6 @@
+import buildTypes.BuildPlugin
 import buildTypes.BuildZStdLinux
+import buildTypes.DepsAndArchsList
 import jetbrains.buildServer.configs.kotlin.*
 import vcsRoots.ZStd
 
@@ -28,10 +30,14 @@ version = "2025.07"
 
 project {
 
-    val archs = listOf(
-        LinuxArch("x86_64", "zstd_x86_64", null, listOf("build-essential")),
+    val depsAndArchs: DepsAndArchsList = mutableListOf()
+
+    vcsRoot(ZStd)
+
+    val linuxArchs = listOf(
+        LinuxArch("x86_64", "x86_64", null, listOf("build-essential")),
         LinuxArch(
-            "aarch64", "zstd_aarch64", "aarch64-linux-gnu-gcc",
+            "aarch64", "aarch64", "aarch64-linux-gnu-gcc",
             listOf(
                 "gcc-aarch64-linux-gnu",
                 "libc6-dev-arm64-cross",
@@ -39,6 +45,13 @@ project {
         ),
     )
 
-    vcsRoot(ZStd)
-    buildType(BuildZStdLinux(archs))
+    val zstdLinux = BuildZStdLinux(linuxArchs).also {
+        buildType(it)
+        depsAndArchs.add(Pair(it, linuxArchs))
+    }
+
+    val buildPlugin = BuildPlugin(depsAndArchs).also {
+        buildType(it)
+    }
+
 }

@@ -1,8 +1,22 @@
-data class LinuxArch(
-    val humanReadable: String,
-    val binaryName: String,
+import jetbrains.buildServer.configs.kotlin.Requirements
+
+open class Arch(
+    val humanReadableName: String,
+    val os: String,
+    val architecture: String,
+    val filename: String, // to handle ".exe" on windows
+)
+
+class LinuxArch(
+    humanReadableName: String,
+    architecture: String,
     val cc: String?,
     val dependencies: List<String>,
+): Arch(
+    humanReadableName,
+    os = "linux",
+    architecture = architecture,
+    filename = "zstd",
 ) {
     val compilerEnvString: String
     get() = if (cc != null) {
@@ -25,4 +39,8 @@ fun StringBuilder.appendBashMultiline(vararg lines: String): StringBuilder {
         }
     }
     return this
+}
+
+fun Requirements.linux() {
+    contains("teamcity.agent.jvm.os.name", "Linux")
 }

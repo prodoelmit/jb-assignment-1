@@ -5,6 +5,7 @@ import appendBashMultiline
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import linux
 import vcsRoots.ZStd
 
 class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
@@ -20,9 +21,9 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
 
     val outDir = "out"
 
-    artifactRules = archs.joinToString("\n") {  arch ->
-        "$outDir/${arch.binaryName}"
-    }
+    artifactRules = """
+        $outDir/**/*
+    """.trimIndent()
 
     steps {
         dockerCommand {
@@ -48,13 +49,13 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
         archs.forEach { arch ->
 
             script {
-                name = "Build ${arch.humanReadable}"
+                name = "Build ${arch.humanReadableName}"
                 scriptContent = """
                 make clean
                 ${arch.compilerEnvString} make
                 
                 mkdir -p out
-                cp programs/zstd out/${arch.binaryName}
+                cp programs/zstd out/${arch.os}/${arch.architecture}/${arch.filename}
             """.trimIndent()
                 dockerImage = dockerTag
             }
@@ -63,7 +64,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
     }
 
     requirements {
-        contains("teamcity.agent.jvm.os.name", "Linux")
+        linux()
     }
 }) {
 }
