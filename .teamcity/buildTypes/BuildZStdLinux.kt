@@ -36,7 +36,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
 
                         appendBashMultiline(
                             "RUN apt update &&",
-                            "apt install",
+                            "apt install -y --no-install-recommends",
                             *deps.toTypedArray(),
                         )
                     }
