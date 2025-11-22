@@ -35,6 +35,8 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                     this.content = buildString {
                         appendLine("FROM alpine:latest")
                         appendLine()
+                        appendLine("RUN echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories")
+                        appendLine()
 
                         appendBashMultiline(
                             "RUN apk add --no-cache",
