@@ -77,3 +77,5 @@ fun Requirements.linux() {
 fun Requirements.mac() {
     contains("teamcity.agent.jvm.os.name", "Mac")
 }
+
+val pluginFilename = "plugin.zip"

@@ -5,14 +5,21 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
-import jetbrains.buildServer.configs.kotlin.buildFeatures.xmlReport
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
+import pluginFilename
 
 typealias DepsAndArchsList = MutableList<Pair<BuildType, List<Arch>>>
 class BuildPlugin(deps: DepsAndArchsList) : BuildType({
     name = "Build Plugin"
     id("BuildPlugin")
+
+    val outputDir = "output"
+
+    artifactRules = """
+        $outputDir/**/*
+    """.trimIndent()
 
     steps {
         gradle {
@@ -26,6 +33,20 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         gradle {
             name = "Run plugin verifier"
             tasks = "verifyPlugin"
+        }
+        script {
+            name = "Prepare artifact"
+            scriptContent = """
+                ZIP=$(find build/distributions -name '*.zip' | head -n1)
+                
+                if [ -z "${'$'}ZIP" ]; then
+                    echo "No artifacts available to move"
+                    exit 1;
+                fi
+                
+                mkdir -p $outputDir
+                cp ${'$'}ZIP $outputDir/$pluginFilename
+            """.trimIndent()
         }
     }
 
