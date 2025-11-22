@@ -26,7 +26,6 @@ changeBuildType(RelativeId("ReleaseToGithub")) {
             }
 
             artifacts {
-                buildRule = lastSuccessful("+:*")
                 artifactRules = "+:signedPlugin.zip"
             }
         }
