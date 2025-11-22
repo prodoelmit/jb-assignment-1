@@ -1,6 +1,5 @@
 package com.github.prodoelmit.jbassignment1
 
-import com.github.luben.zstd.ZstdOutputStream
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.toNioPathOrNull
 import kotlinx.coroutines.Dispatchers
@@ -47,27 +46,50 @@ object Compressor {
         outputPath: Path,
         totalSize: Long,
         reportProgress: (Float) -> Unit
-    ) = try {
-        val buffer = ByteArray(BUFFER_SIZE)
-        var bytesRead: Long = 0
+    ) {
+        val zstdBinary = NativeBinaryLoader.getZstdBinary()
 
-        Files.newOutputStream(outputPath).use { fileOut ->
-            ZstdOutputStream(fileOut).use { zstdOut ->
+        val process = ProcessBuilder(
+            zstdBinary.absolutePath,
+            "-19",  // compression level
+            "-o", outputPath.toString()
+            // reads from stdin by default when no input file specified
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        try {
+            val buffer = ByteArray(BUFFER_SIZE)
+            var bytesRead: Long = 0
+
+            process.outputStream.use { processInput ->
                 var len: Int
                 while (inputStream.read(buffer).also { len = it } != -1) {
                     coroutineContext.ensureActive()
-                    zstdOut.write(buffer, 0, len)
+                    processInput.write(buffer, 0, len)
                     bytesRead += len
                     if (totalSize > 0) {
                         reportProgress(bytesRead.toFloat() / totalSize)
                     }
                 }
             }
+
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                val errorOutput = process.inputStream.bufferedReader().readText()
+                throw RuntimeException("zstd compression failed with exit code $exitCode: $errorOutput")
+            }
+
+            reportProgress(1f)
+        } catch (e: CancellationException) {
+            println("Cleaning up due to cancellation")
+            process.destroyForcibly()
+            outputPath.deleteIfExists()
+            throw e
+        } catch (e: Exception) {
+            process.destroyForcibly()
+            outputPath.deleteIfExists()
+            throw e
         }
-        reportProgress(1f)
-    } catch (e: CancellationException) {
-        println("Cleaning up due to cancellation")
-        outputPath.deleteIfExists()
-        throw e
     }
 }
