@@ -1,6 +1,7 @@
 package buildTypes
 
 import addHiddenParam
+import addPassword
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
@@ -30,9 +31,9 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
         "2958a0f42221d6062b50f22754e413ae5cc42f60c441467202c6700df2e22f44"
     )
 
-    val certFileBase64Ref = addHiddenParam("secret.cert.base64", "credentialsJSON:6809826f-d74f-4ec8-84aa-f57fded27e76")
-    val keyFileBase64Ref = addHiddenParam("secret.key.base64", "credentialsJSON:dc35e719-4111-4500-b914-fc59526c91ed")
-    val passwordRef = addHiddenParam("secret.key.password", "credentialsJSON:b6f2a655-5777-4d7c-a6e1-89e862409770")
+    val certFileBase64Ref = addPassword("secret.cert.base64", "credentialsJSON:6809826f-d74f-4ec8-84aa-f57fded27e76")
+    val keyFileBase64Ref = addPassword("secret.key.base64", "credentialsJSON:dc35e719-4111-4500-b914-fc59526c91ed")
+    val passwordRef = addPassword("secret.key.password", "credentialsJSON:b6f2a655-5777-4d7c-a6e1-89e862409770")
 
     steps {
         script {

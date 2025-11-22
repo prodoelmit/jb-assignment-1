@@ -94,3 +94,9 @@ fun BuildType.addHiddenParam(name: String, value: String): ParameterRef = addPar
         it, value, display = ParameterDisplay.HIDDEN
     )
 }
+
+fun BuildType.addPassword(name: String, value: String): ParameterRef = addParam(name) {
+    password(
+        it, value, display = ParameterDisplay.HIDDEN
+    )
+}
