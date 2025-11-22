@@ -21,7 +21,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
     val outDir = "out"
 
     artifactRules = archs.joinToString("\n") {  arch ->
-        "$outDir/${arch.binaryName} => ${arch.binaryName}"
+        "$outDir/${arch.binaryName}"
     }
 
     steps {
