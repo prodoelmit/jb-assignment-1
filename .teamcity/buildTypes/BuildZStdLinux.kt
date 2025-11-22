@@ -54,7 +54,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                 ${arch.compilerEnvString} make
                 
                 mkdir -p out
-                cp programs/zstd out/${arch.binaryName}"
+                cp programs/zstd out/${arch.binaryName}
             """.trimIndent()
                 dockerImage = dockerTag
             }
