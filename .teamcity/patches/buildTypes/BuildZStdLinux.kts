@@ -43,7 +43,7 @@ changeBuildType(RelativeId("BuildZStdLinux")) {
             commandType = build {
                 source = content {
                     content = """
-                        FROM ubuntu:22
+                        FROM ubuntu:24.04
                         
                         RUN apt install -y --no-install-recommends \\build-essential\ngcc-aarch64-linux-gnu\ng++-aarch64-linux-gnu
                     """.trimIndent()
