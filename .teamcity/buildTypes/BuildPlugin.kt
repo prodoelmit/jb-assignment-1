@@ -2,6 +2,7 @@ package buildTypes
 
 import Arch
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
@@ -17,6 +18,13 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
             name = "Build plugin"
             tasks = "buildPlugin"
         }
+    }
+
+    vcs {
+        root(DslContext.settingsRoot, """
+            +:.
+            -:.teamcity
+        """.trimIndent())
     }
 
     dependencies {
