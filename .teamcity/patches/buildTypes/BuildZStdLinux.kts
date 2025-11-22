@@ -45,7 +45,7 @@ changeBuildType(RelativeId("BuildZStdLinux")) {
                     content = """
                         FROM ubuntu:24.04
                         
-                        RUN apt install -y --no-install-recommends \\build-essential\ngcc-aarch64-linux-gnu\ng++-aarch64-linux-gnu
+                        RUN apt install -y --no-install-recommends build-essential gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
                     """.trimIndent()
                 }
                 contextDir = ""
