@@ -61,7 +61,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
                   -in $inputDir/$pluginFilename \
                   -out $outputDir/$signedPluginFilename \
                   -cert-file "$certChainFile" \
-                  -key-file "$keyFileBase64Ref" \
+                  -key-file "$keyFile" \
                   -key-pass "$passwordRef"
             """.trimIndent()
         }
