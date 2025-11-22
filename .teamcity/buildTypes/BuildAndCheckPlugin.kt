@@ -75,7 +75,7 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
                         buildString {
                             append("${arch.os}/${arch.architecture}/${arch.filename}")
                             append(" => ")
-                            append("src/main/resources/native/${arch.os}/${arch.architecture}/${arch.filename}")
+                            append("src/main/resources/native/${arch.os}/${arch.architecture}/")
                         }
                     }
                 }
