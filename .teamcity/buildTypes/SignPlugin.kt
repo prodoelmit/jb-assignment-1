@@ -79,6 +79,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
         dependency(buildPlugin) {
             snapshot {
                 onDependencyFailure = FailureAction.FAIL_TO_START
+                onDependencyCancel = FailureAction.CANCEL
                 reuseBuilds = ReuseBuilds.SUCCESSFUL
             }
             artifacts {

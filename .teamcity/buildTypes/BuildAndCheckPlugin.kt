@@ -4,7 +4,9 @@ import Arch
 import addHiddenParam
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
+import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
@@ -22,7 +24,7 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         $outputDir/**/*
     """.trimIndent()
 
-    addHiddenParam("env.GRADLE_USER_HOME", "%system.teamcity.build.tempDir%/gradle_cache")
+    val gradleHomeRef = addHiddenParam("env.GRADLE_USER_HOME", "%system.teamcity.build.tempDir%/gradle_cache")
 
     steps {
         gradle {
@@ -68,6 +70,8 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
             dependency(buildType) {
                 snapshot {
                     reuseBuilds = ReuseBuilds.SUCCESSFUL
+                    onDependencyFailure = FailureAction.CANCEL
+                    onDependencyCancel = FailureAction.FAIL_TO_START
                 }
                 artifacts {
                     cleanDestination = true
@@ -86,6 +90,10 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
     features {
         swabra {
             forceCleanCheckout = true
+        }
+        buildCache {
+            name = "gradle"
+            rules = "$gradleHomeRef"
         }
     }
 
