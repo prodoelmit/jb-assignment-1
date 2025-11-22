@@ -43,11 +43,10 @@ class MacArch(
 val linuxArchs = listOf(
     LinuxArch("x86_64", "x86_64", null, listOf("build-base", "make")),
     LinuxArch(
-        "aarch64", "aarch64", "aarch64-linux-musl-gcc",
+        "aarch64", "aarch64", "/opt/aarch64-linux-musl-cross/bin/aarch64-linux-musl-gcc",
         listOf(
             "build-base",
             "make",
-            "aarch64-linux-musl-gcc",
         )
     ),
 )

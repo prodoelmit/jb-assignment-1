@@ -35,13 +35,17 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                     this.content = buildString {
                         appendLine("FROM alpine:latest")
                         appendLine()
-                        appendLine("RUN echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories")
-                        appendLine()
 
                         appendBashMultiline(
                             "RUN apk add --no-cache",
+                            "wget",
                             *deps.toTypedArray(),
                         )
+                        appendLine()
+                        appendLine()
+                        appendLine("RUN wget -q https://musl.cc/aarch64-linux-musl-cross.tgz && \\")
+                        appendLine("    tar -xzf aarch64-linux-musl-cross.tgz -C /opt && \\")
+                        appendLine("    rm aarch64-linux-musl-cross.tgz")
                     }
                 }
 
