@@ -30,7 +30,13 @@ project {
 
     val archs = listOf(
         LinuxArch("x86_64", "zstd_x86_64", null, listOf("build-essential")),
-        LinuxArch("aarch64", "zstd_aarch64", "aarch64-linux-gnu-gcc", listOf("gcc-aarch64-linux-gnu")),
+        LinuxArch(
+            "aarch64", "zstd_aarch64", "aarch64-linux-gnu-gcc",
+            listOf(
+                "gcc-aarch64-linux-gnu",
+                "libc6-dev-arm64-cross",
+            )
+        ),
     )
 
     vcsRoot(ZStd)
