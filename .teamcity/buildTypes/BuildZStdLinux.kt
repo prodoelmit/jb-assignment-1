@@ -32,7 +32,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                     this.content = """
                         FROM ubuntu:24.04
                         
-                        apt install -y --no-install-recommends \
+                        RUN apt install -y --no-install-recommends \
                             ${deps.joinToString("\\\n")}
                     """.trimIndent()
                 }
