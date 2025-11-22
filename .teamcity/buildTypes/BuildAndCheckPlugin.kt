@@ -25,14 +25,17 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         gradle {
             name = "Build plugin"
             tasks = "buildPlugin"
+            dockerImage = "amazoncorretto:17"
         }
         gradle {
             name = "Run tests"
             tasks = "check"
+            dockerImage = "amazoncorretto:17"
         }
         gradle {
             name = "Run plugin verifier"
             tasks = "verifyPlugin"
+            dockerImage = "amazoncorretto:17"
         }
         script {
             name = "Prepare artifact"
