@@ -1,8 +1,11 @@
 package com.github.prodoelmit.jbassignment1
 
+import com.intellij.ide.actions.RevealFileAction
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
+import java.nio.file.Path
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -54,13 +57,17 @@ class CompressAction : AnAction() {
                     }
                 }
 
-                debugBalloon("Compressed $filename in ${time}ms")
+                showCompletionNotification("Compressed $filename in ${time}ms", outputPath)
             }
         }
     }
 
-    fun debugBalloon(text: String) {
-        Notifications.Bus.notify(Notification("notifications.debug", text, NotificationType.INFORMATION))
+    private fun showCompletionNotification(text: String, filePath: Path) {
+        val notification = Notification("notifications.debug", text, NotificationType.INFORMATION)
+        notification.addAction(NotificationAction.createSimple(RevealFileAction.getActionName()) {
+            RevealFileAction.openFile(filePath)
+        })
+        Notifications.Bus.notify(notification)
     }
 
 
