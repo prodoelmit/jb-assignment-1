@@ -57,6 +57,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
                 echo '$keyFileBase64Ref' | base64 -d > $keyFile
                 echo '$certFileBase64Ref' | base64 -d > $certChainFile
                 
+                mkdir -p $outputDir
                 java -jar $signerFilename sign \
                   -in $inputDir/$pluginFilename \
                   -out $outputDir/$signedPluginFilename \
