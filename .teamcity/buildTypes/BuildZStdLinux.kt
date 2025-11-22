@@ -26,15 +26,6 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
         $outDir/**/*
     """.trimIndent()
 
-    vcs {
-        root(
-            DslContext.settingsRoot, """
-            +:.
-            -:.teamcity
-        """.trimIndent()
-        )
-    }
-
     steps {
         dockerCommand {
             name = "Prepare docker with cross-compilers"

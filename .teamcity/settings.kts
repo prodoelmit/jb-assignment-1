@@ -1,5 +1,6 @@
 import buildTypes.BuildPlugin
 import buildTypes.BuildZStdLinux
+import buildTypes.BuildZStdMac
 import buildTypes.DepsAndArchsList
 import jetbrains.buildServer.configs.kotlin.*
 import vcsRoots.ZStd
@@ -34,20 +35,15 @@ project {
 
     vcsRoot(ZStd)
 
-    val linuxArchs = listOf(
-        LinuxArch("x86_64", "x86_64", null, listOf("build-essential")),
-        LinuxArch(
-            "aarch64", "aarch64", "aarch64-linux-gnu-gcc",
-            listOf(
-                "gcc-aarch64-linux-gnu",
-                "libc6-dev-arm64-cross",
-            )
-        ),
-    )
 
     val zstdLinux = BuildZStdLinux(linuxArchs).also {
         buildType(it)
         depsAndArchs.add(Pair(it, linuxArchs))
+    }
+
+    val zstdMac = BuildZStdMac(macArchs).also {
+        buildType(it)
+        depsAndArchs.add(Pair(it, macArchs))
     }
 
     val buildPlugin = BuildPlugin(depsAndArchs).also {

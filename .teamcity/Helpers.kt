@@ -26,6 +26,35 @@ class LinuxArch(
     }
 }
 
+// Homebrew dependencies: Xcode Command Line Tools (xcode-select --install)
+// Native Apple Clang supports cross-compilation via -arch flag
+class MacArch(
+    humanReadableName: String,
+    architecture: String,
+    val compilerEnvString: String = "",
+): Arch(
+    humanReadableName,
+    os = "darwin",
+    architecture = architecture,
+    filename = "zstd",
+)
+
+val linuxArchs = listOf(
+    LinuxArch("x86_64", "x86_64", null, listOf("build-essential")),
+    LinuxArch(
+        "aarch64", "aarch64", "aarch64-linux-gnu-gcc",
+        listOf(
+            "gcc-aarch64-linux-gnu",
+            "libc6-dev-arm64-cross",
+        )
+    ),
+)
+
+val macArchs = listOf(
+    MacArch("x86_64", "x86_64", "CFLAGS=\"-arch x86_64\" LDFLAGS=\"-arch x86_64\""),
+    MacArch("aarch64", "aarch64", "CFLAGS=\"-arch arm64\" LDFLAGS=\"-arch arm64\""),
+)
+
 
 fun StringBuilder.appendBashMultiline(vararg lines: String): StringBuilder {
     val indentString = "\t\t"
@@ -43,4 +72,8 @@ fun StringBuilder.appendBashMultiline(vararg lines: String): StringBuilder {
 
 fun Requirements.linux() {
     contains("teamcity.agent.jvm.os.name", "Linux")
+}
+
+fun Requirements.mac() {
+    contains("teamcity.agent.jvm.os.name", "Mac")
 }
