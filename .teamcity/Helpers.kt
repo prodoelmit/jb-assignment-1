@@ -11,3 +11,18 @@ data class LinuxArch(
         ""
     }
 }
+
+
+fun StringBuilder.appendBashMultiline(vararg lines: String): StringBuilder {
+    val indentString = "\t\t"
+    lines.forEachIndexed { index, line ->
+        if (index > 0) {
+            append(indentString)
+        }
+        append(line)
+        if (index != lines.lastIndex) {
+            appendLine(" \\")
+        }
+    }
+    return this
+}

@@ -1,6 +1,7 @@
 package buildTypes
 
 import LinuxArch
+import appendBashMultiline
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
@@ -27,14 +28,18 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
         dockerCommand {
             name = "Prepare docker with cross-compilers"
             this.commandType = build {
-                val deps = archs.flatMap { arch -> arch.dependencies }
-                this.source = content {
-                    this.content = """
-                        FROM ubuntu:24.04
-                        
-                        RUN apt install -y --no-install-recommends \
-                            ${deps.joinToString("\\\n")}
-                    """.trimIndent()
+                val deps = archs.flatMap { it.dependencies }
+                source = content {
+                    this.content = buildString {
+                        appendLine("FROM ubuntu:24.04")
+                        appendLine()
+
+                        appendBashMultiline(
+                            "RUN apt update &&",
+                            "apt install",
+                            *deps.toTypedArray(),
+                        )
+                    }
                 }
 
                 this.namesAndTags = dockerTag
