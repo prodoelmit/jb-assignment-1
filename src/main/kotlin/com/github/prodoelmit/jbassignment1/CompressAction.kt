@@ -7,13 +7,15 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.writeAction
+import com.intellij.openapi.fileChooser.FileChooserFactory
+import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.currentThreadCoroutineScope
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.toNioPathOrNull
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.platform.util.progress.reportRawProgress
 import kotlinx.coroutines.launch
-import kotlin.io.path.Path
 import kotlin.system.measureTimeMillis
 
 @Suppress("UnstableApiUsage")
@@ -22,7 +24,14 @@ class CompressAction : AnAction() {
         val project = p0.project ?: return
         val virtualFile = p0.dataContext.getData(PlatformDataKeys.VIRTUAL_FILE) ?: return
         val filename = virtualFile.name
-        val outputPath = Path(virtualFile.path + ".zst")
+
+        // Show file save dialog
+        val descriptor = FileSaverDescriptor("Save Compressed File", "Choose location for compressed file", "zst")
+        val dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project)
+
+        // when virtualFile.parent is null dialog will use some default directory
+        val wrapper = dialog.save(virtualFile.parent, "$filename.zst") ?: return
+        val outputPath = wrapper.file.toPath()
 
         currentThreadCoroutineScope().launch {
             withBackgroundProgress(
