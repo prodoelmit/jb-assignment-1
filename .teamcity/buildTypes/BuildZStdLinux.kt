@@ -61,7 +61,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                 val dirForArtifact = "$outDir/${arch.os}/${arch.architecture}"
                 scriptContent = """
                     make clean
-                    ${arch.compilerEnvString} make LDFLAGS="-static"
+                    ${arch.compilerEnvString} make zstd LDFLAGS="-static"
 
                     mkdir -p "$dirForArtifact"
                     cp programs/zstd "$dirForArtifact/${arch.filename}"
