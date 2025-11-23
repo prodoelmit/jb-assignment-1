@@ -94,7 +94,6 @@ class ReleaseToGithub(composite: Composite): BuildType( {
         dependency(composite) {
             snapshot {
                 onDependencyFailure = FailureAction.FAIL_TO_START
-                reuseBuilds = ReuseBuilds.SUCCESSFUL
             }
             artifacts {
                 artifactRules = """
