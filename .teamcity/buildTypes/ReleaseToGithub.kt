@@ -42,7 +42,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
         script {
             name = "Fail: not a tag"
             conditions {
-                doesNotMatch("${branchRef}", "refs/tags/.*")
+                doesNotMatch(branchRef.name, "refs/tags/.*")
             }
             scriptContent = """
                 echo "##teamcity[buildStatus status='FAILURE' text='Build requires a tag, got: ${branchRef}']"
@@ -52,7 +52,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
         bashScript {
             name = "Extract tag"
             scriptContent = """
-                BRANCH="${branchRef}"
+                BRANCH="$branchRef"
                 TAG="${'$'}{BRANCH#refs/tags/}"
                 echo "##teamcity[setParameter name='${tagRef.name}' value='${'$'}TAG']"
                 echo "##teamcity[buildStatus text='Releasing ${'$'}TAG']"
@@ -77,7 +77,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
                 TAG="$tagRef"
 
                 # Convert git@github.com:owner/repo.git to owner/repo
-                REPO_URL="${repoUrlRef}"
+                REPO_URL="$repoUrlRef"
                 REPO="${'$'}{REPO_URL#*:}"
                 REPO="${'$'}{REPO%.git}"
 
