@@ -10,6 +10,7 @@ object ZStd: GitVcsRoot({
     }
     url = "git@github.com:prodoelmit/zstd.git" // Our fork where we control branch naming
     branch = "main"
+    useTagsAsBranches = true
     branchSpec = """
         +:*
     """.trimIndent()
