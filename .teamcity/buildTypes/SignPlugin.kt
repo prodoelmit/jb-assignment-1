@@ -2,7 +2,9 @@ package buildTypes
 
 import addHiddenParam
 import addPassword
+import alpineImage
 import bashScript
+import javaImage
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import linux
@@ -42,6 +44,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
                 wget '$signerUrlRef' -O $signerFilename
                 echo '$signerShaRef  $signerFilename' | sha256sum -c -
             """.trimIndent()
+            dockerImage = alpineImage
         }
 
         bashScript {
@@ -61,6 +64,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
                   -key-file "$keyFile" \
                   -key-pass "$passwordRef"
             """.trimIndent()
+            dockerImage = javaImage
         }
     }
 

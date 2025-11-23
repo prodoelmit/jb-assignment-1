@@ -8,7 +8,7 @@ import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import alpineImage
 import bashScript
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
+import javaImage
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import linux
@@ -25,13 +25,14 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         $outputDir/**/*
     """.trimIndent()
 
-    val gradleHomeRef = addHiddenParam("env.GRADLE_USER_HOME", "%system.teamcity.build.tempDir%/gradle_cache")
+    val gradleCacheDir = "%teamcity.agent.work.dir%/gradle_cache"
 
     steps {
         gradle {
             name = "Build plugin"
             tasks = "buildPlugin"
-            dockerImage = "amazoncorretto:17"
+            dockerImage = javaImage
+            gradleHome = gradleCacheDir
         }
         bashScript {
             name = "Prepare artifact"
@@ -51,12 +52,14 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         gradle {
             name = "Run tests"
             tasks = "check"
-            dockerImage = "amazoncorretto:17"
+            dockerImage = javaImage
+            gradleHome = gradleCacheDir
         }
         gradle {
             name = "Run plugin verifier"
             tasks = "verifyPlugin"
-            dockerImage = "amazoncorretto:17"
+            dockerImage = javaImage
+            gradleHome = gradleCacheDir
         }
     }
 
@@ -92,10 +95,6 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
     features {
         swabra {
             forceCleanCheckout = true
-        }
-        buildCache {
-            name = "gradle"
-            rules = "$gradleHomeRef"
         }
     }
 
