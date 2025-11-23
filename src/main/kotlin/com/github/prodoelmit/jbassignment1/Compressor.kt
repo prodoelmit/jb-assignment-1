@@ -33,10 +33,34 @@ object Compressor {
     }
 
     suspend fun compressFile(input: Path, outputPath: Path, level: Int = 19, reportProgress: (Float) -> Unit): Path {
-        val totalSize = Files.size(input)
         withContext(Dispatchers.IO) {
-            Files.newInputStream(input).use { inputStream ->
-                compressStream(inputStream, outputPath, totalSize, level, reportProgress)
+            val zstdBinary = NativeBinaryLoader.getZstdBinary()
+
+            val process = ProcessBuilder(
+                zstdBinary.absolutePath,
+                "-$level",
+                "-f",  // force overwrite if file exists
+                "-o", outputPath.toString(),
+                input.toString()
+            )
+                .redirectErrorStream(true)
+                .start()
+
+            try {
+                val exitCode = process.awaitExit()
+                if (exitCode != 0) {
+                    val errorOutput = process.inputStream.bufferedReader().readText()
+                    throw RuntimeException("zstd compression failed with exit code $exitCode: $errorOutput")
+                }
+                reportProgress(1f)
+            } catch (e: CancellationException) {
+                process.destroyForcibly()
+                outputPath.deleteIfExists()
+                throw e
+            } catch (e: Exception) {
+                process.destroyForcibly()
+                outputPath.deleteIfExists()
+                throw e
             }
         }
         return outputPath

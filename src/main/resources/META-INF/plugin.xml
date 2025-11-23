@@ -9,9 +9,9 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup id="notifications.debug"
+        <notificationGroup id="notifications.compressor"
                            displayType="BALLOON"
-                           key="notifications.debug"/>
+                           key="notifications.compressor"/>
     </extensions>
 
     <actions>

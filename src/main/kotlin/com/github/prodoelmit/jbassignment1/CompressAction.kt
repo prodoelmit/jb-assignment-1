@@ -22,13 +22,23 @@ import kotlin.system.measureTimeMillis
 @Suppress("UnstableApiUsage")
 class CompressAction : AnAction() {
     override fun actionPerformed(p0: AnActionEvent) {
-        val project = p0.project ?: return
-        val virtualFile = p0.dataContext.getData(PlatformDataKeys.VIRTUAL_FILE) ?: return
+        val project = p0.project
+        if (project == null) {
+            showErrorNotification("No project available")
+            return
+        }
+
+        val virtualFile = p0.dataContext.getData(PlatformDataKeys.VIRTUAL_FILE)
+        if (virtualFile == null) {
+            showErrorNotification("No file selected")
+            return
+        }
+
         val filename = virtualFile.name
 
         // Show compression dialog
         val dialog = CompressionDialog(project, virtualFile)
-        if (!dialog.showAndGet()) return
+        if (!dialog.showAndGet()) return  // User cancelled - silent return is expected
         val outputPath = dialog.getOutputPath()
         val compressionLevel = dialog.getCompressionLevel()
 
@@ -59,10 +69,15 @@ class CompressAction : AnAction() {
     }
 
     private fun showCompletionNotification(text: String, filePath: Path) {
-        val notification = Notification("notifications.debug", text, NotificationType.INFORMATION)
+        val notification = Notification("notifications.compressor", text, NotificationType.INFORMATION)
         notification.addAction(NotificationAction.createSimple(RevealFileAction.getActionName()) {
             RevealFileAction.openFile(filePath)
         })
+        Notifications.Bus.notify(notification)
+    }
+
+    private fun showErrorNotification(text: String) {
+        val notification = Notification("notifications.compressor", text, NotificationType.ERROR)
         Notifications.Bus.notify(notification)
     }
 

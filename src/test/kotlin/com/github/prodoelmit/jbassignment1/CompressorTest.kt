@@ -1,7 +1,9 @@
 package com.github.prodoelmit.jbassignment1
 
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
@@ -138,15 +140,40 @@ class CompressorTest : BasePlatformTestCase() {
             // Write 256mb of data
             val chunk = "X".repeat(1024 * 1024) // 1MB
             Files.newBufferedWriter(inputPath).use { writer ->
-                repeat(256) { writer.write(chunk) }
+                repeat(1024) { writer.write(chunk) }
             }
 
-            val originalSize = inputPath.fileSize()
+            // Compress and cancel after a short delay
+            val job = launch {
+                Compressor.compressFile(inputPath, outputPath) { }
+            }
 
-            // Compress and cancel at 20%
+            // Give compression time to start, then cancel
+            delay(20)
+            job.cancel()
+            job.join()
+
+            // Verify output file is cleaned up due to cancellation
+            assertTrue("Output file should be cleaned up due to cancellation", Files.notExists(outputPath))
+        } finally {
+            inputPath.deleteIfExists()
+            outputPath.deleteIfExists()
+        }
+    }
+
+    fun testStreamCancellation() = runBlocking {
+        val outputPath = Files.createTempFile("cancelled_stream_output", ".zst")
+
+        try {
+            // Create large content in LightVirtualFile (no local path, uses stream compression)
+            val chunk = "X".repeat(1024 * 1024) // 1MB
+            val content = chunk.repeat(256) // 256MB
+            val lightFile = LightVirtualFile("large_stream.txt", content)
+
+            // Compress and cancel at 20% progress
             var job: Job? = null
             job = launch {
-                Compressor.compressFile(inputPath, outputPath) { progress ->
+                Compressor.compress(lightFile, outputPath) { progress ->
                     if (progress >= 0.2f) {
                         job?.cancel()
                     }
@@ -154,10 +181,9 @@ class CompressorTest : BasePlatformTestCase() {
             }
             job.join()
 
-            // Verify output exists but is incomplete
+            // Verify output file is cleaned up due to cancellation
             assertTrue("Output file should be cleaned up due to cancellation", Files.notExists(outputPath))
         } finally {
-            inputPath.deleteIfExists()
             outputPath.deleteIfExists()
         }
     }

@@ -31,6 +31,7 @@ class CompressionDialog(
     override fun createCenterPanel(): JComponent {
         return panel {
             row("Output file:") {
+                @Suppress("UnstableApiUsage")
                 textFieldWithBrowseButton(
                     FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor()
                         .withTitle("Select Output File"),
