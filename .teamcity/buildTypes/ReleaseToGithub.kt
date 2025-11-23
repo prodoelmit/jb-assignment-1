@@ -57,6 +57,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
                 echo "##teamcity[setParameter name='${tagRef.name}' value='${'$'}TAG']"
                 echo "##teamcity[buildStatus text='Releasing ${'$'}TAG']"
             """.trimIndent()
+            dockerImage = alpineImage
         }
         dockerCommand {
             name = "Prepare docker with github-cli"
