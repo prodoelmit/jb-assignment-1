@@ -78,5 +78,10 @@ changeBuildType(RelativeId("ReleaseToGithub")) {
             }
             param("teamcity.kubernetes.executor.pull.policy", "")
         }
+        update<ScriptBuildStep>(1) {
+            clearConditions()
+            dockerImage = "alpine:latest"
+            param("teamcity.kubernetes.executor.pull.policy", "")
+        }
     }
 }
