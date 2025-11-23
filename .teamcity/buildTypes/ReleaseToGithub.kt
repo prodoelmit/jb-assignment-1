@@ -5,7 +5,6 @@ import addPassword
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.FailureAction
-import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
@@ -28,8 +27,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
 
     val tagRef = addHiddenParam("tag", "--to be filled automatically--")
 
-    val branchRef = composite.depParamRefs["vcsroot.${DslContext.settingsRootId.id}.branch"]
-
+    val branchRef = composite.depParamRefs["teamcity.build.vcs.branch.${DslContext.settingsRootId.id}"]
     val repoUrlRef = composite.depParamRefs["vcsroot.${DslContext.settingsRootId.id}.url"]
 
     triggers {
@@ -97,7 +95,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
             }
             artifacts {
                 artifactRules = """
-                    +:$signedPluginFilename
+                    +:$signedPluginFilename => $inputDir
                 """.trimIndent()
             }
         }
