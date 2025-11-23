@@ -2,6 +2,7 @@ package buildTypes
 
 import addHiddenParam
 import addPassword
+import bashScript
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.FailureAction
@@ -38,19 +39,22 @@ class ReleaseToGithub(composite: Composite): BuildType( {
 
     steps {
         script {
-            name = "Fail if not tag, extract tag"
+            name = "Fail: not a tag"
+            conditions {
+                doesNotMatch("${branchRef}", "refs/tags/.*")
+            }
+            scriptContent = """
+                echo "##teamcity[buildStatus status='FAILURE' text='Build requires a tag, got: ${branchRef}']"
+                exit 1
+            """.trimIndent()
+        }
+        bashScript {
+            name = "Extract tag"
             scriptContent = """
                 BRANCH="${branchRef}"
-                case "${'$'}BRANCH" in
-                    refs/tags/*) ;;
-                    *)
-                        echo "Error: This build requires a tag, got: ${'$'}BRANCH"
-                        exit 1
-                        ;;
-                esac
                 TAG="${'$'}{BRANCH#refs/tags/}"
                 echo "##teamcity[setParameter name='${tagRef.name}' value='${'$'}TAG']"
-                echo "Tag detected: ${'$'}TAG"
+                echo "##teamcity[buildStatus text='Releasing ${'$'}TAG']"
             """.trimIndent()
         }
         dockerCommand {
@@ -66,13 +70,10 @@ class ReleaseToGithub(composite: Composite): BuildType( {
                 namesAndTags = dockerTag
             }
         }
-        script {
+        bashScript {
             name = "Create GitHub Release"
             scriptContent = """
-                set -e
-
                 TAG="$tagRef"
-                echo "Creating release for tag: ${'$'}TAG"
 
                 # Convert git@github.com:owner/repo.git to owner/repo
                 REPO_URL="${repoUrlRef}"
@@ -85,7 +86,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
                     --generate-notes \
                     "${inputDir}/${signedPluginFilename}"
 
-                echo "Release created successfully"
+                echo "##teamcity[buildStatus text='Released ${'$'}TAG']"
             """.trimIndent()
             dockerImage = dockerTag
         }

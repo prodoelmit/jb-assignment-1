@@ -1,4 +1,5 @@
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
 import jetbrains.buildServer.configs.kotlin.ui.add
 
 open class Arch(
@@ -99,4 +100,16 @@ fun BuildType.addPassword(name: String, value: String): ParameterRef = addParam(
     password(
         it, value, display = ParameterDisplay.HIDDEN
     )
+}
+
+fun BuildSteps.bashScript(init: ScriptBuildStep.() -> Unit): ScriptBuildStep {
+    val step = ScriptBuildStep {
+        init()
+        scriptContent = """
+            set -xeuo pipefail
+            ${scriptContent}
+        """.trimIndent()
+    }
+    step(step)
+    return step
 }

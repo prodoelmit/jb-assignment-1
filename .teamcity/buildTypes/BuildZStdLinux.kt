@@ -2,10 +2,10 @@ package buildTypes
 
 import LinuxArch
 import appendBashMultiline
+import bashScript
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.buildSteps.dockerCommand
-import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
 import vcsRoots.ZStd
 
@@ -54,9 +54,8 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
         }
         archs.forEach { arch ->
 
-            script {
+            bashScript {
                 name = "Build ${arch.humanReadableName}"
-
 
                 val dirForArtifact = "$outDir/${arch.os}/${arch.architecture}"
                 scriptContent = """
@@ -65,7 +64,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
 
                     mkdir -p "$dirForArtifact"
                     cp programs/zstd "$dirForArtifact/${arch.filename}"
-            """.trimIndent()
+                """.trimIndent()
                 dockerImage = dockerTag
             }
 

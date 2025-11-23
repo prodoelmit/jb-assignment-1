@@ -2,9 +2,9 @@ package buildTypes
 
 import addHiddenParam
 import addPassword
+import bashScript
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
-import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
 import pluginFilename
 import signedPluginFilename
@@ -36,19 +36,15 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
     val passwordRef = addPassword("secret.key.password", "credentialsJSON:b6f2a655-5777-4d7c-a6e1-89e862409770")
 
     steps {
-        script {
+        bashScript {
             name = "Prepare signer"
             scriptContent = """
                 wget '$signerUrlRef' -O $signerFilename
-                sha256 -c '$signerShaRef' $signerFilename
-                if [ $? -neq 0 ]; then
-                    echo "Signer SHA mismatch"
-                    exit 1;
-                fi
+                echo '$signerShaRef  $signerFilename' | sha256sum -c -
             """.trimIndent()
         }
 
-        script {
+        bashScript {
             name = "Sign plugin"
             val tmpDirRef = ParameterRef("system.teamcity.build.tempDir")
             val keyFile = "$tmpDirRef/key.pem"
@@ -56,7 +52,7 @@ class SignPlugin(buildPlugin: BuildPlugin) : BuildType({
             scriptContent = """
                 echo '$keyFileBase64Ref' | base64 -d > $keyFile
                 echo '$certFileBase64Ref' | base64 -d > $certChainFile
-                
+
                 mkdir -p $outputDir
                 java -jar $signerFilename sign \
                   -in $inputDir/$pluginFilename \

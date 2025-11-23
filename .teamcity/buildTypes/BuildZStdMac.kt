@@ -1,8 +1,8 @@
 package buildTypes
 
 import MacArch
+import bashScript
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import mac
 import vcsRoots.ZStd
 
@@ -22,9 +22,8 @@ class BuildZStdMac(val archs: Collection<MacArch>) : BuildType({
 
     steps {
         archs.forEach { arch ->
-            script {
+            bashScript {
                 name = "Build ${arch.humanReadableName}"
-
 
                 val dirForArtifact = "$outDir/${arch.os}/${arch.architecture}"
                 scriptContent = """
@@ -33,7 +32,7 @@ class BuildZStdMac(val archs: Collection<MacArch>) : BuildType({
 
                     mkdir -p "$dirForArtifact"
                     cp programs/zstd "$dirForArtifact/${arch.filename}"
-            """.trimIndent()
+                """.trimIndent()
             }
 
         }

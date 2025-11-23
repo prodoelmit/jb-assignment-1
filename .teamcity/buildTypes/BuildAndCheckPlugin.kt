@@ -6,10 +6,10 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
+import bashScript
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
-import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import linux
 import pluginFilename
 
@@ -42,18 +42,18 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
             tasks = "verifyPlugin"
             dockerImage = "amazoncorretto:17"
         }
-        script {
+        bashScript {
             name = "Prepare artifact"
             scriptContent = """
-                ZIP=$(find build/distributions -name '*.zip' | head -n1)
-                
+                ZIP=${'$'}(find build/distributions -name '*.zip' | head -n1)
+
                 if [ -z "${'$'}ZIP" ]; then
-                    echo "No artifacts available to move"
-                    exit 1;
+                    echo "##teamcity[buildStatus status='FAILURE' text='No artifacts available to move']"
+                    exit 1
                 fi
-                
+
                 mkdir -p $outputDir
-                cp ${'$'}ZIP $outputDir/$pluginFilename
+                cp "${'$'}ZIP" $outputDir/$pluginFilename
             """.trimIndent()
         }
     }
