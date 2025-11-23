@@ -6,6 +6,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
+import alpineImage
 import bashScript
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
@@ -32,16 +33,6 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
             tasks = "buildPlugin"
             dockerImage = "amazoncorretto:17"
         }
-        gradle {
-            name = "Run tests"
-            tasks = "check"
-            dockerImage = "amazoncorretto:17"
-        }
-        gradle {
-            name = "Run plugin verifier"
-            tasks = "verifyPlugin"
-            dockerImage = "amazoncorretto:17"
-        }
         bashScript {
             name = "Prepare artifact"
             scriptContent = """
@@ -55,6 +46,17 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
                 mkdir -p $outputDir
                 cp "${'$'}ZIP" $outputDir/$pluginFilename
             """.trimIndent()
+            dockerImage = alpineImage
+        }
+        gradle {
+            name = "Run tests"
+            tasks = "check"
+            dockerImage = "amazoncorretto:17"
+        }
+        gradle {
+            name = "Run plugin verifier"
+            tasks = "verifyPlugin"
+            dockerImage = "amazoncorretto:17"
         }
     }
 

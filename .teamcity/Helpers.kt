@@ -82,6 +82,7 @@ fun Requirements.mac() {
 
 val pluginFilename = "plugin.zip"
 val signedPluginFilename = "signedPlugin.zip"
+val alpineImage = "alpine:3.22"
 
 fun BuildType.addParam(name: String, block: ParametrizedWithType.(String) -> Unit = {}): ParameterRef {
     params.add {

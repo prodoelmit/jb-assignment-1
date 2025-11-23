@@ -2,6 +2,7 @@ package buildTypes
 
 import addHiddenParam
 import addPassword
+import alpineImage
 import bashScript
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
@@ -62,7 +63,7 @@ class ReleaseToGithub(composite: Composite): BuildType( {
             this.commandType = build {
                 this.source = content {
                     content = buildString {
-                        appendLine("FROM alpine:latest")
+                        appendLine("FROM $alpineImage")
                         appendLine()
                         appendLine("RUN apk add --no-cache github-cli git")
                     }

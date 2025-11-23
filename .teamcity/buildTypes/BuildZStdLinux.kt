@@ -1,6 +1,7 @@
 package buildTypes
 
 import LinuxArch
+import alpineImage
 import appendBashMultiline
 import bashScript
 import jetbrains.buildServer.configs.kotlin.BuildType
@@ -33,7 +34,7 @@ class BuildZStdLinux(val archs: Collection<LinuxArch>) : BuildType({
                 val deps = archs.flatMap { it.dependencies }
                 source = content {
                     this.content = buildString {
-                        appendLine("FROM alpine:latest")
+                        appendLine("FROM $alpineImage")
                         appendLine()
 
                         appendBashMultiline(
