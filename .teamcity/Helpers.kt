@@ -1,5 +1,6 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildSteps.ScriptBuildStep
+import jetbrains.buildServer.configs.kotlin.buildSteps.GradleBuildStep
 import jetbrains.buildServer.configs.kotlin.ui.add
 
 open class Arch(
@@ -111,6 +112,18 @@ fun BuildSteps.bashScript(init: ScriptBuildStep.() -> Unit): ScriptBuildStep {
             set -xeuo pipefail
             ${scriptContent}
         """.trimIndent()
+    }
+    step(step)
+    return step
+}
+
+val gradleCacheDir = "%teamcity.agent.work.dir%/gradle_cache"
+
+fun BuildSteps.gradleCached(init: GradleBuildStep.() -> Unit): GradleBuildStep {
+    val step = GradleBuildStep {
+        dockerImage = javaImage
+        dockerRunParameters = "-v $gradleCacheDir:$gradleCacheDir -e GRADLE_USER_HOME=$gradleCacheDir"
+        init()
     }
     step(step)
     return step

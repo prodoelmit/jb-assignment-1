@@ -8,9 +8,8 @@ import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.ReuseBuilds
 import alpineImage
 import bashScript
-import javaImage
+import gradleCached
 import jetbrains.buildServer.configs.kotlin.buildFeatures.swabra
-import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import linux
 import pluginFilename
 
@@ -25,14 +24,10 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
         $outputDir/**/*
     """.trimIndent()
 
-    val gradleCacheDir = "%teamcity.agent.work.dir%/gradle_cache"
-
     steps {
-        gradle {
+        gradleCached {
             name = "Build plugin"
             tasks = "buildPlugin"
-            dockerImage = javaImage
-            gradleHome = gradleCacheDir
         }
         bashScript {
             name = "Prepare artifact"
@@ -49,17 +44,13 @@ class BuildPlugin(deps: DepsAndArchsList) : BuildType({
             """.trimIndent()
             dockerImage = alpineImage
         }
-        gradle {
+        gradleCached {
             name = "Run tests"
             tasks = "check"
-            dockerImage = javaImage
-            gradleHome = gradleCacheDir
         }
-        gradle {
+        gradleCached {
             name = "Run plugin verifier"
             tasks = "verifyPlugin"
-            dockerImage = javaImage
-            gradleHome = gradleCacheDir
         }
     }
 
