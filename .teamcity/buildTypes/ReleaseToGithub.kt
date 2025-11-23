@@ -41,10 +41,13 @@ class ReleaseToGithub(composite: Composite): BuildType( {
             name = "Fail if not tag, extract tag"
             scriptContent = """
                 BRANCH="${branchRef}"
-                if [[ "${'$'}BRANCH" != refs/tags/* ]]; then
-                    echo "Error: This build requires a tag, got: ${'$'}BRANCH"
-                    exit 1
-                fi
+                case "${'$'}BRANCH" in
+                    refs/tags/*) ;;
+                    *)
+                        echo "Error: This build requires a tag, got: ${'$'}BRANCH"
+                        exit 1
+                        ;;
+                esac
                 TAG="${'$'}{BRANCH#refs/tags/}"
                 echo "##teamcity[setParameter name='${tagRef.name}' value='${'$'}TAG']"
                 echo "Tag detected: ${'$'}TAG"
