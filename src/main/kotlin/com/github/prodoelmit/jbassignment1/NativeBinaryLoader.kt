@@ -27,7 +27,7 @@ object NativeBinaryLoader {
         val resourcePath = "/native/$os/$arch/$binaryName"
 
         val stream = javaClass.getResourceAsStream(resourcePath)
-            ?: error("Native zstd binary not found: $resourcePath. Make sure the binary is bundled for $os/$arch")
+            ?: error(CompressorBundle.message("error.binary.not.found", resourcePath, os, arch))
 
         val tempDir = Files.createTempDirectory("zstd-native").toFile()
         tempDir.deleteOnExit()
@@ -68,7 +68,7 @@ object NativeBinaryLoader {
             osName.contains("linux") -> "linux"
             osName.contains("mac") || osName.contains("darwin") -> "darwin"
             osName.contains("win") -> "win"
-            else -> error("Unsupported OS: $osName")
+            else -> error(CompressorBundle.message("error.unsupported.os", osName))
         }
     }
 
@@ -77,7 +77,7 @@ object NativeBinaryLoader {
         return when (osArch) {
             "amd64", "x86_64" -> "x86_64"
             "aarch64", "arm64" -> "aarch64"
-            else -> error("Unsupported architecture: $osArch")
+            else -> error(CompressorBundle.message("error.unsupported.arch", osArch))
         }
     }
 }

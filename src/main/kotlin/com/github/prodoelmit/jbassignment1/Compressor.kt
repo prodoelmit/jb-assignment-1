@@ -50,7 +50,7 @@ object Compressor {
                 val exitCode = process.awaitExit()
                 if (exitCode != 0) {
                     val errorOutput = process.inputStream.bufferedReader().readText()
-                    throw RuntimeException("zstd compression failed with exit code $exitCode: $errorOutput")
+                    throw RuntimeException(CompressorBundle.message("error.compression.failed", exitCode, errorOutput))
                 }
                 reportProgress(1f)
             } catch (e: CancellationException) {
@@ -82,7 +82,7 @@ object Compressor {
 
             if (exitCode != 0) {
                 val errorOutput = process.errorStream.bufferedReader().readText()
-                throw RuntimeException("zstd decompression failed with exit code $exitCode: $errorOutput")
+                throw RuntimeException(CompressorBundle.message("error.decompression.failed", exitCode, errorOutput))
             }
 
             output
@@ -127,12 +127,11 @@ object Compressor {
             val exitCode = process.awaitExit()
             if (exitCode != 0) {
                 val errorOutput = process.inputStream.bufferedReader().readText()
-                throw RuntimeException("zstd compression failed with exit code $exitCode: $errorOutput")
+                throw RuntimeException(CompressorBundle.message("error.compression.failed", exitCode, errorOutput))
             }
 
             reportProgress(1f)
         } catch (e: CancellationException) {
-            println("Cleaning up due to cancellation")
             process.destroyForcibly()
             outputPath.deleteIfExists()
             throw e

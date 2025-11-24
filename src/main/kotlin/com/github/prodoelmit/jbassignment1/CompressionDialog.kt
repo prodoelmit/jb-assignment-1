@@ -22,7 +22,7 @@ class CompressionDialog(
 
     private val defaultFileName = "${sourceFile.name}.zst"
     private val pathPanel = FieldPanel(
-        "Output file:",
+        CompressorBundle.message("dialog.output.file"),
         null,
         { browse() },
         null
@@ -30,7 +30,7 @@ class CompressionDialog(
     private var compressionLevel: Int = 19
 
     init {
-        title = "Save Compressed File"
+        title = CompressorBundle.message("dialog.save.title")
         val outputPath = if (sourceFile.parent != null) {
             "${sourceFile.parent.path}/$defaultFileName"
         } else {
@@ -42,8 +42,8 @@ class CompressionDialog(
 
     private fun browse() {
         val descriptor = FileChooserDescriptorFactory.singleFileOrDir().apply {
-            title = "Select Output File"
-            description = "Choose location for compressed file"
+            title = CompressorBundle.message("dialog.select.output.title")
+            description = CompressorBundle.message("dialog.select.output.description")
             isHideIgnored = false
         }
 
@@ -64,7 +64,7 @@ class CompressionDialog(
             row {
                 cell(pathPanel).resizableColumn()
             }
-            row("Compression level:") {
+            row(CompressorBundle.message("dialog.compression.level")) {
                 spinner(1..19, 1)
                     .bindIntValue(::compressionLevel)
             }

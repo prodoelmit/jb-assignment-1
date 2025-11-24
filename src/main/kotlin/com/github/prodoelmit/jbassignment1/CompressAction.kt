@@ -24,13 +24,13 @@ class CompressAction : AnAction() {
     override fun actionPerformed(p0: AnActionEvent) {
         val project = p0.project
         if (project == null) {
-            showErrorNotification("No project available")
+            showErrorNotification(CompressorBundle.message("error.no.project"))
             return
         }
 
         val virtualFile = p0.dataContext.getData(PlatformDataKeys.VIRTUAL_FILE)
         if (virtualFile == null) {
-            showErrorNotification("No file selected")
+            showErrorNotification(CompressorBundle.message("error.no.file"))
             return
         }
 
@@ -45,7 +45,7 @@ class CompressAction : AnAction() {
         currentThreadCoroutineScope().launch {
             withBackgroundProgress(
                 project = project,
-                title = "Compressing $filename",
+                title = CompressorBundle.message("progress.compressing", filename),
             ) {
                 // Flush unsaved changes before compression
                 // if there's real file behind this virtual one
@@ -63,7 +63,7 @@ class CompressAction : AnAction() {
                     }
                 }
 
-                showCompletionNotification("Compressed $filename in ${time}ms", outputPath)
+                showCompletionNotification(CompressorBundle.message("notification.compressed", filename, time), outputPath)
             }
         }
     }

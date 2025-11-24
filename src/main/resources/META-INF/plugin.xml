@@ -6,7 +6,7 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.CompressorBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="notifications.compressor"
@@ -14,11 +14,9 @@
                            key="notifications.compressor"/>
     </extensions>
 
-    <actions>
-        <action id="compress-current-file"
+    <actions resource-bundle="messages.CompressorBundle">
+        <action id="CompressCurrentFile"
                 class="com.github.prodoelmit.jbassignment1.CompressAction"
-                description="Compresses current file using zstd lib"
-                text="Compress Current File"
         >
             <add-to-group group-id="FileExportGroup"
                           relative-to-action="ExportToHTML"
